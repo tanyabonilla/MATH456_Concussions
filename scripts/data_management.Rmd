@@ -1,0 +1,28 @@
+---
+title: "Data_Management"
+author: "Madeline Hoshko"
+date: "3/6/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+pkgs = c("readxl","ggplot2", "magrittr", "dplyr", "leaps", "gridExtra")
+for (pkg in pkgs){
+  if (!require(pkg, character.only = T)){
+    install.packages(pkg)
+    library(pkg)
+  }
+}
+
+concussions <- read_excel("../data/raw_data.xlsx")
+
+```
+
+```{r}
+
+```
+
+
+
+
