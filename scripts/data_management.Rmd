@@ -1,0 +1,40 @@
+---
+title: "data_management"
+author: "Tanya Bonilla"
+date: "3/6/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message = FALSE}
+library(tidyverse)
+library(dplyr)
+library(plyr)
+library(readxl)
+
+raw_data <- read_excel("../data/raw_data.xlsx")
+```
+
+
+Changed the column names to lower case and got rid of any spaces in the column names. I also changed any -1 (missing data) to NA.
+```{r}
+colnames(raw_data) <- tolower(colnames(raw_data))
+colnames(raw_data) <- gsub("(\\s)+", "_", colnames(raw_data)) 
+raw_data <- raw_data %>%
+            mutate_all(~replace(., . == "-1", NA))
+```
+Editing rows to factors and changing data to be more readable. 
+```{r}
+raw_data$sex <- as.factor(raw_data$sex)  %>%
+                revalue(c("0"="female", "1" = "male"))
+raw_data$concussion_history <- as.factor(raw_data$concussion_history)  %>%
+                                revalue(c("0"="yes", "1" = "no"))
+raw_data$sport <- as.factor(raw_data$sport) %>%
+                  revalue(c("1"="soccer", "2"="hockey", "3"="rugby", "4"="football", "5"="lacrosse", "6"="cheerleading"))
+raw_data$learning_disability <- as.factor(raw_data$learning_disability) %>%
+                  revalue(c("1"="yes", "2"="no"))
+```
+
