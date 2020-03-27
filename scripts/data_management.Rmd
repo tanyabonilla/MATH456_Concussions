@@ -21,33 +21,46 @@ raw_data <- read_excel("../data/raw_data.xlsx")
 
 Changed the column names to lower case and got rid of any spaces by changing them to underscores; also known as snake_case. I also changed any -1 (missing data) to NA.
 ```{r}
-colnames(raw_data) <- tolower(colnames(raw_data))
-colnames(raw_data) <- gsub("(\\s)+", "_", colnames(raw_data)) 
-colnames(raw_data)[colnames(raw_data)=="#_of_prior_depressive_episodes"] <- "num_of_prior_depressive_episodes"
-colnames(raw_data)[colnames(raw_data)=="prior_depressive_episode(s)_y/n"] <- "prior_depressive_episodes"
-raw_data <- raw_data %>%
+clean_data <- raw_data
+colnames(clean_data) <- tolower(colnames(clean_data))
+colnames(clean_data) <- gsub("(\\s)+", "_", colnames(clean_data)) 
+colnames(clean_data)[colnames(clean_data)=="#_of_prior_depressive_episodes"] <- "num_of_prior_depressive_episodes"
+colnames(clean_data)[colnames(clean_data)=="prior_depressive_episode(s)_y/n"] <- "prior_depressive_episodes"
+#colnames(clean_data)[colnames(clean_data)=="age_(years)"] <- "age"
+clean_data <- clean_data %>%
             mutate_all(~replace(., . == "-1", NA))
 ```
 
 Editing rows to factors and changing data to be more readable. 
 ```{r message=FALSE}
-raw_data$sex <- as.factor(raw_data$sex)  %>%
+clean_data$sex <- as.factor(clean_data$sex)  %>%
                 revalue(c("0"="female", "1" = "male"))
-raw_data$concussion_history <- as.factor(raw_data$concussion_history)  %>%
+clean_data$concussion_history <- as.factor(clean_data$concussion_history)  %>%
                                 revalue(c("0"="yes", "1" = "no"))
-raw_data$sport <- as.factor(raw_data$sport) %>%
+clean_data$sport <- as.factor(clean_data$sport) %>%
                   revalue(c("1"="soccer", "2"="hockey", "3"="rugby", "4"="football", "5"="lacrosse", "6"="cheerleading"))
-raw_data$learning_disability <- as.factor(raw_data$learning_disability) %>%
+clean_data$learning_disability <- as.factor(clean_data$learning_disability) %>%
                   revalue(c("1"="yes", "0"="no"))
-raw_data$anxiety_diagnosis <- as.factor(raw_data$anxiety_diagnosis) %>%
+clean_data$anxiety_diagnosis <- as.factor(clean_data$anxiety_diagnosis) %>%
                   revalue(c("1"="yes", "0"="no"))
-raw_data$anxiety_symptoms <- as.factor(raw_data$anxiety_symptoms) %>%
+clean_data$anxiety_symptoms <- as.factor(clean_data$anxiety_symptoms) %>%
                   revalue(c("0"="yes", "1"="no"))
-raw_data$depression_diagnosis <- as.factor(raw_data$depression_diagnosis) %>%
+clean_data$depression_diagnosis <- as.factor(clean_data$depression_diagnosis) %>%
                   revalue(c("0"="no", "1"="yes"))
-raw_data$prior_depressive_episodes <- as.factor(raw_data$prior_depressive_episodes) %>% 
+clean_data$prior_depressive_episodes <- as.factor(clean_data$prior_depressive_episodes) %>% 
                   revalue(c("0"="no", "1"="yes"))
-raw_data$aggregate_medical_history <- as.factor(raw_data$aggregate_medical_history) %>% 
+clean_data$aggregate_medical_history <- as.factor(clean_data$aggregate_medical_history) %>% 
                   revalue(c("0"="none", "1"="yes"))
 ```
 
+EDA
+```{r}
+clean_data_sans_na <- clean_data %>% na.omit
+clean_data_sans_na$`age_(years)` <- as.integer(clean_data_sans_na$`age_(years)`)
+age_mean <- mean(clean_data_sans_na$`age_(years)`)
+
+ggplot(data = clean_data_sans_na) + geom_bar(aes(x =`age_(years)`)) + geom_vline(aes(xintercept =(age_mean), colour="red"))
+
+
+ggplot(data = clean_data_sans_na, mapping = aes(x =`age_(years)`, y = concussion_number, colour = sport)) + geom_jitter()
+```
